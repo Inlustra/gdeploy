@@ -1,0 +1,16 @@
+FROM node:8.3
+
+ENV CONTAINER_PATH /usr/gdeploy/server
+
+RUN mkdir -p $CONTAINER_PATH
+
+COPY . $CONTAINER_PATH
+WORKDIR $CONTAINER_PATH
+
+RUN npm install
+
+
+EXPOSE 80
+EXPOSE 9229
+
+ENTRYPOINT npm run serve:dev

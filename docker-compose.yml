@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+
+  server:
+    ports:
+      - '3333:3333'
+      - '9229:9229'
+    volumes:
+      - './server/:/usr/tilas/server/'
+      - './server.dev.env:/usr/tilas/server/.env'
+    build: ./server/
