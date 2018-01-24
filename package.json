@@ -7,7 +7,8 @@
     "start": "./bin/gdeploy-dev",
     "start:watch": "nodemon",
     "prestart:prod": "tsc",
-    "start:prod": "./bin/gdeploy"
+    "start:prod": "./bin/gdeploy",
+    "test": "jasmine-ts \"src/**/*.spec.ts\""
   },
   "dependencies": {
     "@inlustra/env-args": "^1.0.2",
@@ -18,17 +19,27 @@
     "@nestjs/websockets": "^4.5.0",
     "chalk": "^2.3.0",
     "change-case": "^3.0.1",
+    "dateformat": "^3.0.2",
     "dotenv": "^4.0.0",
+    "event-stream": "^3.3.4",
     "nconf": "^0.10.0",
     "redis": "^2.7.1",
     "reflect-metadata": "^0.1.10",
     "rxjs": "^5.4.0",
-    "typescript": "^2.5.2"
+    "split2": "^2.2.0",
+    "winston": "^2.4.0"
   },
   "devDependencies": {
+    "@types/dateformat": "^1.0.1",
+    "@types/jasmine": "^2.8.5",
     "@types/node": "^8.0.28",
+    "@types/split2": "^2.1.6",
+    "@types/through2": "^2.0.33",
+    "@types/winston": "^2.3.7",
+    "jasmine-ts": "^0.2.1",
     "nodemon": "^1.12.1",
-    "ts-node": "^3.3.0"
+    "ts-node": "^3.3.0",
+    "typescript": "^2.5.2"
   },
   "bin": {
     "gdeploy": "./bin/gdeploy",
