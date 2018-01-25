@@ -8,7 +8,10 @@ class LsJob implements Job {
   description = `List the directory at ${this.directory}`
 
   start() {
-    const child = spawn('ls', [this.directory], {stdio: ['pipe', 'pipe', 'pipe'], detached: true})
+    const child = spawn('ls', [this.directory], {
+      stdio: ['pipe', 'pipe', 'pipe'],
+      detached: true
+    })
     return child
   }
 }

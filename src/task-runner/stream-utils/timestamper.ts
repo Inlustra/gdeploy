@@ -5,9 +5,10 @@ function generateTimestamp() {
   return dateformat(new Date(), 'isoTime')
 }
 
-const timestamper = through2(function(chunk, enc, cb) {
-  this.push('[' + generateTimestamp() + '] ' + chunk)
-  cb()
-})
+const timestamper = () =>
+  through2(function(chunk, enc, cb) {
+    this.push('[' + generateTimestamp() + '] ' + chunk)
+    cb()
+  })
 
 export { timestamper }
