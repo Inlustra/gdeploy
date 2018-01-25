@@ -22,7 +22,8 @@ describe('TaskRunner', () => {
 
   it('should correctly launch a simple task', cb => {
 
+    const key1 = taskRunner.registerTask(tasks.successfulTask('./'))
     const key2 = taskRunner.registerTask(tasks.errorTask('./', 10))
-    taskRunner.startTask(key2)
+    taskRunner.startTask(key1, key2)
   })
 })

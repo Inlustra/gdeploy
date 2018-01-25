@@ -4,7 +4,7 @@ import { LsJob } from '../../../jobs/ls.job'
 import { EchoJob } from '../../../jobs/echo.job'
 import { ExitJob } from '../jobs/exit.job'
 
-function successfulTask(directory: string, code: number): Task {
+function successfulTask(directory: string): Task {
   return {
     name: 'Successful Test Task',
     description: 'A task to list a directory',
