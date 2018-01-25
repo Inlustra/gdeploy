@@ -1,6 +1,5 @@
 import { Test } from '@nestjs/testing'
 import { TaskRunner } from './task-runner'
-import { LsJob } from '../jobs/ls.job'
 import * as tasks from './test-utils/tasks/test.task'
 import * as logger from 'winston'
 
@@ -22,8 +21,8 @@ describe('TaskRunner', () => {
 
   it('should correctly launch a simple task', cb => {
 
-    const key1 = taskRunner.registerTask(tasks.successfulTask('./'))
+    //const key1 = taskRunner.registerTask(tasks.successfulTask('./'))
     const key2 = taskRunner.registerTask(tasks.errorTask('./', 10))
-    taskRunner.startTask(key1, key2)
+    taskRunner.startTask(key2)
   })
 })
