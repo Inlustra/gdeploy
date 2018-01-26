@@ -7,31 +7,32 @@ import { TaskContext } from './models/task-context.model'
 import { ChildProcess } from 'child_process'
 import { JobStatus } from './models/job-status.model'
 import { JobStage } from './models/job-stage.model'
+import { TaskAlreadyFinishedError } from './errors'
 
 enum TaskHandlerEvents {
   STAGE_UPDATE = 'stage_update'
 }
 
 class TaskHandler extends Transform {
-
   static readonly Events = TaskHandlerEvents
 
-  private step: number = -1
+  private stepIndex: number = -1
   private stages: JobStage[]
+  private child: ChildProcess
 
   get context(): TaskContext {
     return {
-      step: this.step,
+      step: this.stepIndex,
       stages: this.stages
     }
   }
 
   get currentJob(): Job {
-    return this.task.jobs[this.step]
+    return this.task.jobs[this.stepIndex]
   }
 
   get currentStage(): JobStage {
-    return this.stages[this.step]
+    return this.stages[this.stepIndex]
   }
 
   constructor(public task: Task) {
@@ -42,36 +43,42 @@ class TaskHandler extends Transform {
     }))
   }
 
-  stepTask() {
+  step() {
     const previousStatus = this.currentStage && this.currentStage.status
-    this.step += 1
-    if (this.step >= this.task.jobs.length) {
-      this.destroy()
-      return
-    }
-    if (this.canRunJob(this.currentJob, previousStatus)) {
-      this.startJob(this.currentJob)
-    } else {
+    while (++this.stepIndex < this.task.jobs.length) {
+      if (this.canRunJob(this.currentJob, previousStatus)) {
+        return this.startJob(this.currentJob)
+      }
       this.updateJobStatus(JobStatus.SKIPPED)
     }
+    this.destroy()
   }
 
-  private startJob(job: Job) {
-    this.handleChildProcess(this.currentJob.start(this.context))
-    this.updateJobStatus(JobStatus.RUNNING)
-  }
   private canRunJob(
     { previousTaskCondition }: Job,
     previousStatus?: JobStatus
   ) {
     return (
       !previousStatus ||
-      (!previousTaskCondition && previousStatus !== JobStatus.FAILED) ||
+      (!previousTaskCondition && previousStatus === JobStatus.SUCCESS) ||
       previousTaskCondition === previousStatus
     )
   }
 
-  private handleChildProcess(child: ChildProcess) {
+  cancel() {
+    if (this.stepIndex >= this.task.jobs.length) {
+      throw new TaskAlreadyFinishedError()
+    }
+    this.child.kill('SIGINT')
+  }
+
+  private startJob(job: Job) {
+    this.child = this.currentJob.start(this.context)
+    this.setupChildProcess(this.child)
+    this.updateJobStatus(JobStatus.RUNNING)
+  }
+
+  private setupChildProcess(child: ChildProcess) {
     child.stdout.pipe(split2(), { end: false }).pipe(this)
     child.stderr
       .pipe(split2(), { end: false })
@@ -81,8 +88,14 @@ class TaskHandler extends Transform {
   }
 
   private onChildClose(code: number) {
-    this.updateJobStatus(code === 0 ? JobStatus.SUCCESS : JobStatus.FAILED)
-    this.stepTask()
+    let status = JobStatus.SUCCESS
+    if (code === null) {
+      status = JobStatus.CANCELLED
+    } else if (code === 0) {
+      status = JobStatus.SUCCESS
+    }
+    this.updateJobStatus(status)
+    this.step()
   }
 
   private updateJobStatus(jobStatus: JobStatus) {

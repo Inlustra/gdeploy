@@ -19,11 +19,32 @@ describe('TaskRunner', () => {
     taskRunner = module.get<TaskRunner>(TaskRunner)
   })
 
-  it('should correctly launch a simple task', cb => {
-    //const key1 = taskRunner.registerTask(tasks.successfulTask('./'))
-    const key2 = taskRunner.registerTask(
-      tasks.cloneAndRun('git@github.com:Inlustra/env-args.git', 'echo "OUT!"')
+  it('successfully run all tasks', cb => {
+    taskRunner.startTask(taskRunner.registerTask(tasks.successfulTask('./')))
+    taskRunner.on(TaskRunner.Events.REMOVE_TASK, cb)
+  })
+
+  fit('successfully cancel the task before execution', cb => {
+    const task = taskRunner.registerTask(
+      tasks.sleepEchoTask('Hi', '2', "I shouldn't be appearing!")
     )
-    taskRunner.startTask(key2)
+    setInterval(() => taskRunner.cancelTask(task), 1000)
+    taskRunner.on(TaskRunner.Events.TASK_STAGE_UPDATE, console.log)
+    taskRunner.on(TaskRunner.Events.REMOVE_TASK, cb)
+    taskRunner.startTask(task)
+  })
+
+  it('should skip the next task if the previous task has an incorrect previousCondition', cb => {
+    taskRunner.startTask(taskRunner.registerTask(tasks.errorTask('./', 10)))
+    taskRunner.on(TaskRunner.Events.REMOVE_TASK, cb)
+  })
+
+  xit('should correctly launch a simple task', cb => {
+    taskRunner.startTask(
+      taskRunner.registerTask(
+        tasks.cloneAndRun('git@github.com:Inlustra/env-args.git', 'echo "OUT!"')
+      )
+    )
+    taskRunner.on(TaskRunner.Events.REMOVE_TASK, cb)
   })
 })

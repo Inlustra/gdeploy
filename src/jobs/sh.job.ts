@@ -11,6 +11,7 @@ function shJob(
     start: () =>
       spawn('sh', ['-c', command], {
         stdio: ['pipe', 'pipe', 'pipe'],
+        detached: true,
         ...spawnOptions
       })
   }

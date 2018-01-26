@@ -1,7 +1,7 @@
 
 export enum JobStatus {
   SUCCESS = 'SUCCESS',
-  FAILED = 'FAILED',
+  ERROR = 'ERROR',
   RUNNING = 'RUNNING',
   CANCELLED = 'CANCELLED',
   PENDING = 'PENDING',
