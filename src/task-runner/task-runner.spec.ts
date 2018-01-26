@@ -4,7 +4,7 @@ import * as tasks from './test-utils/tasks/test.task'
 import * as logger from 'winston'
 
 logger.configure({
-  transports: [new logger.transports.Console({level: 'silly'})]
+  transports: [new logger.transports.Console({ level: 'silly' })]
 })
 
 describe('TaskRunner', () => {
@@ -20,9 +20,10 @@ describe('TaskRunner', () => {
   })
 
   it('should correctly launch a simple task', cb => {
-
     //const key1 = taskRunner.registerTask(tasks.successfulTask('./'))
-    const key2 = taskRunner.registerTask(tasks.errorTask('./', 10))
+    const key2 = taskRunner.registerTask(
+      tasks.cloneAndRun('git@github.com:Inlustra/env-args.git', 'echo "OUT!"')
+    )
     taskRunner.startTask(key2)
   })
 })

@@ -11,7 +11,7 @@
     "test": "jasmine-ts \"src/**/*.spec.ts\""
   },
   "dependencies": {
-    "@inlustra/env-args": "^1.0.2",
+    "@inlustra/env-args": "^1.0.6",
     "@nestjs/common": "^4.5.0",
     "@nestjs/core": "^4.5.0",
     "@nestjs/microservices": "^4.5.0",

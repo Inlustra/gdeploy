@@ -1,21 +1,19 @@
 import { Job } from '../task-runner/models/job.model'
 import { spawn, SpawnOptions } from 'child_process'
 
-function spawnJob(
+function shJob(
   command: string,
-  args: string[],
-  opts: SpawnOptions = {}
+  spawnOptions: SpawnOptions = {}
 ): Job {
-  const commandStr = command + args.join(' ')
   return {
     name: `Run ${command}`,
-    description: `Run the following command: ${commandStr}`,
+    description: `Run the following command: ${command}`,
     start: () =>
-      spawn(command, args, {
+      spawn('sh', ['-c', command], {
         stdio: ['pipe', 'pipe', 'pipe'],
-        ...opts
+        ...spawnOptions
       })
   }
 }
 
-export { spawnJob }
+export { shJob }

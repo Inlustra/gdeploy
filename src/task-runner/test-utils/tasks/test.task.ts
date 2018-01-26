@@ -3,6 +3,8 @@ import { Job } from '../../models/job.model'
 import { echoJob } from '../../../jobs/echo.job';
 import { lsJob } from '../../../jobs/ls.job';
 import { exitJob } from '../jobs/exit.job';
+import { gitCloneJob } from '../../../jobs/git-clone.job';
+import { shJob } from '../../../jobs/sh.job';
 
 function successfulTask(directory: string): Task {
   return {
@@ -20,4 +22,13 @@ function errorTask(directory: string, code: number): Task {
   }
 }
 
-export { successfulTask, errorTask }
+function cloneAndRun(gitRepo: string, command: string): Task {
+  const dir = '/tmp/clone_and_run_'+Math.floor(Math.random() * Date.now());
+  return {
+    name: 'Clone and Run',
+    description: `Clone ${gitRepo}, ls the directory and then run ${command}`,
+    jobs: [gitCloneJob(gitRepo, dir), lsJob(dir), shJob(command, {cwd: dir})]
+  }
+}
+
+export { successfulTask, errorTask, cloneAndRun }

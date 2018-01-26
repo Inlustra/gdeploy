@@ -11,13 +11,11 @@ import { JobStage } from './models/job-stage.model'
 class TaskHandler extends Transform {
   public static readonly STAGE_UPDATE_EVENT = 'stage_update'
 
-  private key: string
   private step: number = -1
   private stages: JobStage[]
 
   get context(): TaskContext {
     return {
-      key: this.key,
       step: this.step,
       stages: this.stages
     }
@@ -30,9 +28,9 @@ class TaskHandler extends Transform {
   get currentStage(): JobStage {
     return this.stages[this.step]
   }
+
   constructor(public task: Task) {
     super()
-    this.key = task.name + '-' + Math.floor(Math.random() * Date.now())
     this.stages = this.task.jobs.map(job => ({
       job,
       status: JobStatus.PENDING

@@ -1,5 +1,5 @@
 import { Task } from './models/task.model'
-import { Stream } from 'stream'
+import { Stream, Writable } from 'stream'
 import * as fs from 'fs'
 import * as logger from 'winston'
 import { timestamper } from './stream-utils/timestamper'
@@ -11,18 +11,13 @@ import { stringAppender } from './stream-utils/string-appender'
 export class TaskRunner {
   tasks: { [key: string]: TaskHandler } = {}
 
-  private createFileOutput(file: string) {
-    logger.silly(`Creating log file stream ${file}`)
-    return fs.createWriteStream(file)
-  }
-
   registerTask(task: Task) {
     const taskKey = task.name + '-' + Math.floor(Math.random() * Date.now())
-    const context = new TaskHandler(task)
-    context.pipe(stringAppender(`[${taskKey}] `)).pipe(process.stdout)
-    this.tasks[taskKey] = context
-    context.on('close', () => this.removeTask(taskKey))
-    context.on(TaskHandler.STAGE_UPDATE_EVENT, console.log)
+    const handler = new TaskHandler(task)
+    handler.pipe(stringAppender(`[${taskKey}] `)).pipe(process.stdout)
+    this.tasks[taskKey] = handler
+    handler.on('close', () => this.removeTask(taskKey))
+    //handler.on(TaskHandler.STAGE_UPDATE_EVENT, x => console.log(JSON.stringify(x, null, 4)))
     logger.silly(`Registered new task: ${task.name} [${taskKey}]`)
     return taskKey
   }
@@ -45,4 +40,5 @@ export class TaskRunner {
       task.stepTask()
     })
   }
+
 }

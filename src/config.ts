@@ -4,10 +4,11 @@ const defaultConfig = {
   port: 3000,
   debug: true,
   logConsole: false,
-  allowedUsernames: []
+  allowedUsernames: [],
+  thisWillBreak: undefined
 }
 
 const config = load(defaultConfig);
-console.log(config);
+
 
 export default config

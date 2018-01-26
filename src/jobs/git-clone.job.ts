@@ -2,16 +2,16 @@ import { Job } from '../task-runner/models/job.model'
 import { spawn, SpawnOptions } from 'child_process'
 import * as through2 from 'through2'
 
-function echoJob(str: string, spawnOptions: SpawnOptions = {}): Job {
+function gitCloneJob(url: string, directory: string, spawnOptions: SpawnOptions = {}): Job {
   return {
-    name: 'Echo',
-    description: `Print: ${str}`,
+    name: 'Git Clone',
+    description: `Clone the repo at: ${url}`,
     start: () =>
-      spawn('echo', [str], {
+      spawn('git', ['clone', url, directory], {
         stdio: ['pipe', 'pipe', 'pipe'],
         ...spawnOptions
       })
   }
 }
 
-export { echoJob }
+export { gitCloneJob }
