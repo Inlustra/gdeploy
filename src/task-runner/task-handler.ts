@@ -8,8 +8,13 @@ import { ChildProcess } from 'child_process'
 import { JobStatus } from './models/job-status.model'
 import { JobStage } from './models/job-stage.model'
 
+enum TaskHandlerEvents {
+  STAGE_UPDATE = 'stage_update'
+}
+
 class TaskHandler extends Transform {
-  public static readonly STAGE_UPDATE_EVENT = 'stage_update'
+
+  static readonly Events = TaskHandlerEvents
 
   private step: number = -1
   private stages: JobStage[]
@@ -82,7 +87,7 @@ class TaskHandler extends Transform {
 
   private updateJobStatus(jobStatus: JobStatus) {
     this.currentStage.status = jobStatus
-    this.emit(TaskHandler.STAGE_UPDATE_EVENT, this.stages)
+    this.emit(TaskHandler.Events.STAGE_UPDATE, this.stages)
   }
 
   _transform(line, encoding, cb) {
