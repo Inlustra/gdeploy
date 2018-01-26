@@ -94,6 +94,7 @@ class TaskHandler extends Transform {
     } else if (code === 0) {
       status = JobStatus.SUCCESS
     }
+    this.child.removeAllListeners()
     this.updateJobStatus(status)
     this.step()
   }
@@ -104,8 +105,7 @@ class TaskHandler extends Transform {
   }
 
   _transform(line, encoding, cb) {
-    this.push(`[${this.currentJob.name}] ${line} \n`)
-    cb()
+    cb(null, `[${this.currentJob.name}] ${line} \n`)
   }
 }
 

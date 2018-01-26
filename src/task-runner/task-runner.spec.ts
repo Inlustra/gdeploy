@@ -2,6 +2,8 @@ import { Test } from '@nestjs/testing'
 import { TaskRunner } from './task-runner'
 import * as tasks from './test-utils/tasks/test.task'
 import * as logger from 'winston'
+import { PassThrough, Writable } from 'stream'
+import chalk from 'chalk'
 
 logger.configure({
   transports: [new logger.transports.Console({ level: 'silly' })]
@@ -24,11 +26,35 @@ describe('TaskRunner', () => {
     taskRunner.on(TaskRunner.Events.REMOVE_TASK, cb)
   })
 
-  fit('successfully cancel the task before execution', cb => {
+  it('Not error if the write stream closes early', cb => {
+    const bufferPipe = new Writable({
+      write: (d, enc, cb) => {
+        process.stdout.write(chalk.bgBlue(d.toString()))
+        cb(null, d)
+      }
+    })
+    const buffer2Pipe = new Writable({
+      write: (d, enc, cb) => {
+        process.stdout.write(chalk.bgCyan(d.toString()))
+        cb(null, d)
+      }
+    })
     const task = taskRunner.registerTask(
       tasks.sleepEchoTask('Hi', '2', "I shouldn't be appearing!")
     )
-    setInterval(() => taskRunner.cancelTask(task), 1000)
+    //taskRunner.on(TaskRunner.Events.TASK_STAGE_UPDATE, console.log)
+    setTimeout(() => bufferPipe.destroy(), 1000)
+    setTimeout(() => taskRunner.addTaskPipe(task, buffer2Pipe), 1200)
+    taskRunner.addTaskPipe(task, bufferPipe)
+    taskRunner.startTask(task)
+    taskRunner.on(TaskRunner.Events.REMOVE_TASK, cb)
+  })
+
+  it('successfully cancel the task before execution', cb => {
+    const task = taskRunner.registerTask(
+      tasks.sleepEchoTask('Hi', '2', "I shouldn't be appearing!")
+    )
+    setTimeout(() => taskRunner.cancelTask(task), 1000)
     taskRunner.on(TaskRunner.Events.TASK_STAGE_UPDATE, console.log)
     taskRunner.on(TaskRunner.Events.REMOVE_TASK, cb)
     taskRunner.startTask(task)

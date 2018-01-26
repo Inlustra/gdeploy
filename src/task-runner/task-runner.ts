@@ -18,11 +18,11 @@ enum TaskRunnerEvents {
 export class TaskRunner extends EventEmitter {
   static readonly Events = TaskRunnerEvents
   tasks: { [key: string]: TaskHandler } = {}
-  globalPipes: Set<Writable> = new Set([process.stdout])
+  globalPipes: Set<Writable> = new Set([])
 
   private getTask(taskKey: string) {
-    const task = this.tasks[taskKey];
-    if(!task) throw new TaskNotFoundError(taskKey)
+    const task = this.tasks[taskKey]
+    if (!task) throw new TaskNotFoundError(taskKey)
     return task
   }
 
@@ -47,7 +47,8 @@ export class TaskRunner extends EventEmitter {
   }
 
   removeTask(taskKey: string) {
-    const task = this.getTask(taskKey).task
+    const taskHandler = this.getTask(taskKey)
+    taskHandler.removeAllListeners()
     delete this.tasks[taskKey]
     this.emit(TaskRunner.Events.REMOVE_TASK, taskKey)
   }
@@ -68,7 +69,9 @@ export class TaskRunner extends EventEmitter {
 
   addTaskPipe(taskKey: string, writable: Writable) {
     this.getTask(taskKey).pipe(writable)
-    writable.on('close', () => this.removeTaskPipe(taskKey, writable))
+    const end = () => this.removeTaskPipe(taskKey, writable)
+    writable.on('error', end)
+    writable.on('close', end)
   }
 
   removeTaskPipe(taskKey: string, writable: Writable) {

@@ -10,7 +10,7 @@ function sleepEchoTask(echo1: string, sleepTime: string, echo2: string): Task {
   return {
     name: 'Successful Test Task',
     description: 'A task to list a directory',
-    jobs: [shJob('sleep ' + sleepTime), echoJob(echo2)]
+    jobs: [echoJob(echo1), shJob('sleep ' + sleepTime), echoJob(echo2)]
   }
 }
 
